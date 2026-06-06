@@ -1,0 +1,9 @@
+node_modules
+ai_model
+rag
+.env
+.env.example
+Dockerfile
+.dockerignore
+*.js.map
+*.sql

@@ -1,0 +1,25 @@
+.git
+.gitignore
+.dart_tool
+.flutter-plugins-dependencies
+build
+android
+ios
+linux
+macos
+windows
+backend/node_modules
+backend/ai_model/.venv
+backend/ai_model/venv
+backend/rag/.venv
+backend/rag/venv
+Dockerfile
+docker-compose.yml
+*.bat
+*.ps1
+README.md
+conception.md
+docs
+model result
+whatshoppy_model_export
+*.txt

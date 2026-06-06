@@ -1,0 +1,407 @@
+# WhatShoppy Navigation Assistant Knowledge Base
+
+The WhatShoppy Navigation Assistant helps the business owner understand how to navigate and use the WhatShoppy mobile application.
+
+The assistant only answers questions about the application interfaces, navigation, and usage.
+It should not answer general questions outside WhatShoppy.
+
+The assistant should answer in English by default.
+If the user asks in French, the assistant can answer in French.
+If the user asks in Arabic, the assistant can answer simply in English unless Arabic support is added.
+
+The assistant should give short, clear, and helpful answers.
+When the user asks how to do something, the assistant should answer with simple steps.
+The assistant should not expose technical API errors, backend errors, or internal system details to the user.
+
+---
+
+# Home and Dashboard Interface
+
+The Home or Dashboard interface is the main screen shown after the business owner signs in.
+
+The Dashboard gives the business owner a quick overview of the business activity.
+
+The Dashboard can show:
+- total revenue
+- pending orders
+- total clients
+- total orders
+- total products
+- quick actions
+
+The business owner can use the Dashboard to quickly understand the current state of the store.
+
+If the business owner wants to see business statistics, they should open the Dashboard or Home interface.
+
+If the business owner asks where to see revenue, the answer is: open the Dashboard or Home interface.
+
+If the business owner asks where to see pending orders, the answer is: open the Dashboard or Home interface, or go to the Orders interface for more details.
+
+Example questions:
+- What does the dashboard show?
+- Where can I see my revenue?
+- Where can I see pending orders?
+- Where can I see business statistics?
+
+Expected answer:
+Open the Dashboard or Home interface. It shows an overview of your business, including revenue, pending orders, clients, orders, products, and quick actions.
+
+---
+
+# Clients Interface
+
+The Clients interface allows the business owner to manage customers.
+
+In the Clients interface, the business owner can:
+- view the list of clients
+- search for a client
+- open a client profile
+- view client information
+- view the client order history
+
+If the business owner wants to find a customer, they should open the Clients interface and use the search bar.
+
+If the business owner wants to see the profile of a client, they should open Clients and tap on the client.
+
+Example questions:
+- Where can I find my clients?
+- How can I search for a client?
+- How can I open a client profile?
+- Where can I see customer order history?
+
+Expected answer:
+Go to the Clients interface. Use the search bar to find a client, then tap on the client to open their profile and view their information and order history.
+
+---
+
+# Orders Interface
+
+The Orders interface allows the business owner to manage customer orders.
+
+In the Orders interface, the business owner can:
+- view the list of orders
+- search for an order
+- open order details
+- check ordered products
+- check quantities
+- check total price
+- check client information
+- change the order status
+
+The available order statuses are:
+- Pending
+- Processing
+- Shipped
+- Delivered
+- Cancelled
+
+If the business owner wants to change the status of an order, they should open Orders, select the order, choose the new status, and save the change.
+
+If the business owner wants to view order details, they should open Orders and tap on the selected order.
+
+Example questions:
+- How can I change an order status?
+- Where can I see orders?
+- How can I open order details?
+- What are the available order statuses?
+- How can I check pending orders?
+
+Expected answer:
+Go to the Orders interface. Open the order you want to manage, select the new status, and save the change. The available statuses are Pending, Processing, Shipped, Delivered, and Cancelled.
+
+---
+
+# Stock and Products Interface
+
+The Stock or Products interface allows the business owner to manage products.
+
+In the Stock or Products interface, the business owner can:
+- view the product list
+- search for products
+- add a new product
+- edit an existing product
+- delete a product
+- manage product stock
+- check product quantity
+
+If the business owner wants to manage products, they should open the Stock or Products interface.
+
+If the business owner wants to search for a product, they should open Stock or Products and use the search bar.
+
+If the business owner wants to edit a product, they should open Stock or Products, select the product, update the information, and save changes.
+
+If the business owner wants to delete a product, they should open Stock or Products, select the product, and use the delete option.
+
+Example questions:
+- Where can I manage products?
+- Where can I see my products?
+- How can I search for a product?
+- How can I edit a product?
+- How can I delete a product?
+- Where can I check product stock?
+
+Expected answer:
+Go to the Stock or Products interface. From there, you can view, search, add, edit, delete products, and manage stock quantities.
+
+---
+
+# Add Product Interface
+
+The Add Product interface allows the business owner to create a new product.
+
+The Add Product form can contain:
+- product name
+- SKU
+- category
+- description
+- price
+- stock quantity
+- product image
+
+To add a product manually:
+1. Open the Stock or Products interface.
+2. Tap Add Product.
+3. Fill in the product name.
+4. Enter the SKU if required.
+5. Select or create a category.
+6. Add the product description.
+7. Enter the product price.
+8. Enter the stock quantity.
+9. Add a product image if needed.
+10. Tap Add Product to save the product.
+
+The product is saved in the Supabase database after the business owner taps Add Product.
+
+If the business owner wants to create a new category, they can use the plus button next to the Category field.
+
+Example questions:
+- How can I add a product?
+- Where is the Add Product button?
+- What fields do I need to add a product?
+- How can I create a category?
+- How can I save a new product?
+
+Expected answer:
+Go to the Stock or Products interface, then tap Add Product. Fill in the product name, SKU, category, description, price, stock, and image. Finally, tap Add Product to save it.
+
+---
+
+# AI Image Analysis in Add Product
+
+The AI image analysis feature helps the business owner create a product faster using a product image.
+
+To use AI image analysis:
+1. Open the Stock or Products interface.
+2. Tap Add Product.
+3. Upload or select a product image.
+4. Tap Generate Automatically or start the AI analysis.
+5. The AI analyzes the image.
+6. The system suggests product information.
+7. Review the generated fields.
+8. Edit the information if needed.
+9. Enter the missing fields manually.
+10. Tap Add Product to save the product.
+
+The AI can generate or suggest:
+- product category
+- product name or title
+- product description
+- estimated price if this feature is available
+
+The business owner should review the AI result before saving the product.
+
+The business owner may still need to enter:
+- price
+- stock quantity
+- SKU if required
+
+The AI image analysis does not save the product automatically.
+The product is saved only after the business owner taps Add Product.
+
+Example questions:
+- How does AI analysis work?
+- How can I generate product information automatically?
+- How can I analyze a product image?
+- What does Generate Automatically do?
+- Does the AI save the product automatically?
+- What fields does the AI generate?
+
+Expected answer:
+Go to Add Product, upload a product image, then tap Generate Automatically. The AI analyzes the image and suggests the product category, name, description, and possibly an estimated price. Review the result, complete missing fields like price and stock, then tap Add Product to save.
+
+---
+
+# Category Management
+
+The category field is used when creating or editing a product.
+
+The business owner can select an existing category for a product.
+
+If the needed category does not exist, the business owner can create a custom category using the plus button next to the Category field.
+
+Example questions:
+- How can I select a category?
+- How can I create a new category?
+- Where can I add a custom category?
+
+Expected answer:
+In the Add Product interface, use the Category field to select a category. To create a new one, tap the plus button next to Category.
+
+---
+
+# Settings Interface
+
+The Settings interface allows the business owner to manage account and business information.
+
+In Settings, the business owner can update:
+- email
+- password
+- business name
+- WhatsApp number
+- account settings
+
+The business owner can also sign out from the Settings interface.
+
+If the business owner wants to change the password, they should open Settings and select the password update option.
+
+If the business owner wants to change the email, they should open Settings and update the email field.
+
+If the business owner wants to update the business name, they should open Settings and edit the business name.
+
+If the business owner wants to update the WhatsApp number, they should open Settings and edit the WhatsApp number.
+
+Example questions:
+- How can I update my password?
+- Where can I change my email?
+- Where can I change my business name?
+- How can I update my WhatsApp number?
+- Where can I sign out?
+
+Expected answer:
+Go to the Settings interface. From there, you can update your email, password, business name, WhatsApp number, account settings, or sign out.
+
+---
+
+# Inbox Interface
+
+The Inbox interface allows the business owner to view client messages.
+
+In the Inbox, the business owner can:
+- see messages from clients
+- open a conversation
+- read client messages
+
+If the business owner wants to check messages, they should open the Inbox interface.
+
+Example questions:
+- Where can I see client messages?
+- Where is the inbox?
+- How can I open a client conversation?
+
+Expected answer:
+Go to the Inbox interface. There, you can view client messages and open conversations.
+
+---
+
+# Authentication and Sign In
+
+The business owner accesses the application through the Sign In screen.
+
+To sign in:
+1. Open the application.
+2. Enter the email address.
+3. Enter the password.
+4. Tap Sign In.
+
+After signing in, the business owner is redirected to the Home or Dashboard interface.
+
+If the business owner forgets the password, they can use the Forgot Password option if it is available.
+
+Example questions:
+- How can I sign in?
+- What happens after login?
+- Where do I go after signing in?
+- How can I recover my password?
+
+Expected answer:
+Enter your email and password on the Sign In screen, then tap Sign In. After login, you will be redirected to the Dashboard.
+
+---
+
+# Search Features
+
+The application includes search features in some interfaces.
+
+The business owner can search for:
+- clients in the Clients interface
+- orders in the Orders interface
+- products in the Stock or Products interface
+
+Example questions:
+- How can I search for a product?
+- How can I search for a client?
+- How can I search for an order?
+
+Expected answer:
+Open the correct interface, then use the search bar. Use Clients to search clients, Orders to search orders, and Stock or Products to search products.
+
+---
+
+# Quick Actions
+
+The Dashboard may contain quick actions.
+
+Quick actions help the business owner access important features faster.
+
+Quick actions may include:
+- add product
+- view orders
+- manage clients
+- open products
+
+Example questions:
+- What are quick actions?
+- How can I quickly add a product?
+- How can I quickly open orders?
+
+Expected answer:
+Use the quick actions on the Dashboard to access important features faster, such as adding a product, viewing orders, or managing clients.
+
+---
+
+# Scope and Limitations
+
+The WhatShoppy Navigation Assistant only answers questions about using and navigating the WhatShoppy application.
+
+It can help with:
+- Dashboard navigation
+- Clients interface
+- Orders interface
+- Stock and Products interface
+- Add Product interface
+- AI image analysis
+- Settings
+- Inbox
+- Sign In
+- Search features
+
+It should not answer:
+- general business advice
+- programming questions
+- technical backend errors
+- database implementation details
+- API key questions
+- unrelated questions
+
+If the question is outside the application navigation scope, the assistant should answer:
+I can only help with navigation and usage of the WhatShoppy application. You can ask me about Dashboard, Products, Orders, Clients, Settings, Inbox, or AI product analysis.
+
+Example questions outside the scope:
+- How do I build a backend?
+- What is Supabase?
+- How do I fix an API error?
+- Give me marketing advice.
+- What is the weather today?
+
+Expected answer:
+I can only help with navigation and usage of the WhatShoppy application. You can ask me about Dashboard, Products, Orders, Clients, Settings, Inbox, or AI product analysis.

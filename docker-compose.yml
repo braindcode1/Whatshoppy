@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  ai-service:
+    build:
+      context: .
+      dockerfile: backend/ai_model/Dockerfile
+    container_name: whatshoppy-ai-service
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+
+  rag-service:
+    build:
+      context: .
+      dockerfile: backend/rag/Dockerfile
+    container_name: whatshoppy-rag-service
+    ports:
+      - "9000:9000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - path: ./backend/.env
+        required: false
+    restart: unless-stopped
+
+  node-backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: whatshoppy-node-backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - ai-service
+      - rag-service
+    environment:
+      - PORT=3000
+      - LOCAL_AI_BASE_URL=http://ai-service:8000
+      - RAG_SERVICE_URL=http://rag-service:9000
+    env_file:
+      - path: ./backend/.env
+        required: false
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: whatshoppy-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - node-backend
+    restart: unless-stopped
