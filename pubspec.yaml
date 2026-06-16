@@ -38,8 +38,6 @@ dependencies:
   image_picker: ^1.1.2
   http: ^1.2.2
   google_fonts: ^6.2.1
-  tflite_flutter: ^0.11.0
-  image: ^4.2.0
 
 dev_dependencies:
   flutter_test:
@@ -65,9 +63,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-   - assets/images/
-   - assets/model/whatshoppy_category_model.tflite
-   - assets/model/class_names.json
+    - assets/images/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

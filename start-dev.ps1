@@ -53,12 +53,12 @@ Write-Host "`n[3/4] Starting Services..." -ForegroundColor Yellow
 # Start FastAPI ML Service
 Set-Location $aiDir
 Write-Host "Starting FastAPI ML Service on http://127.0.0.1:8000..." -ForegroundColor Green
-$pythonProcess = Start-Process -FilePath $pythonExe -ArgumentList "-m", "uvicorn", "yolo_service:app", "--host", "127.0.0.1", "--port", "8000", "--reload" -PassThru -NoNewWindow
+$pythonProcess = Start-Process -FilePath $pythonExe -ArgumentList "-m", "uvicorn", "yolo_service:app", "--host", "127.0.0.1", "--port", "8000" -PassThru -NoNewWindow
 
 # Start FastAPI RAG Service
 Set-Location $ragDir
 Write-Host "Starting FastAPI RAG Service on http://127.0.0.1:9000..." -ForegroundColor Green
-$ragProcess = Start-Process -FilePath $ragPythonExe -ArgumentList "-m", "uvicorn", "rag_service:app", "--host", "127.0.0.1", "--port", "9000", "--reload" -PassThru -NoNewWindow
+$ragProcess = Start-Process -FilePath $ragPythonExe -ArgumentList "-m", "uvicorn", "rag_service:app", "--host", "127.0.0.1", "--port", "9000" -PassThru -NoNewWindow
 
 # Wait 2 seconds to ensure FastAPI services are up before Node starts making requests
 Start-Sleep -Seconds 2

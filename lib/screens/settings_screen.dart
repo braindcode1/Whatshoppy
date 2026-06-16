@@ -18,11 +18,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _backendUrlController = TextEditingController();
 
   bool _isLoading = false;
   bool _obscureCurrent = true;
   bool _obscureNew = true;
   bool _obscureConfirm = true;
+  bool _isTestingConnection = false;
+  bool? _isConnectionSuccess;
 
   @override
   void initState() {
@@ -33,11 +36,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _loadSettings() async {
     try {
       final email = await LocalStorageService.getEmail();
+      final customUrl = await ApiClient.getCustomBackendUrl() ?? '';
       if (!mounted) return;
       setState(() {
         if (email != null && email.isNotEmpty) {
           _emailController.text = email;
         }
+        _backendUrlController.text = customUrl;
       });
     } catch (_) {}
   }
@@ -48,6 +53,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _currentPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
+    _backendUrlController.dispose();
     super.dispose();
   }
 
@@ -124,6 +130,70 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _showSnackBar(e.toString().replaceFirst('Exception: ', ''), isError: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _testAndSaveBackendUrl() async {
+    final url = _backendUrlController.text.trim();
+    if (url.isEmpty) {
+      setState(() {
+        _isTestingConnection = true;
+        _isConnectionSuccess = null;
+      });
+      try {
+        await ApiClient.setCustomBackendUrl(null);
+        ApiClient.clearResolvedBaseUrl();
+        if (!mounted) return;
+        _showSnackBar('Backend URL reset to default local candidates');
+        setState(() {
+          _isConnectionSuccess = true;
+        });
+      } catch (e) {
+        if (!mounted) return;
+        _showSnackBar('Failed to reset backend URL', isError: true);
+        setState(() {
+          _isConnectionSuccess = false;
+        });
+      } finally {
+        if (mounted) setState(() => _isTestingConnection = false);
+      }
+      return;
+    }
+
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      _showSnackBar('URL must start with http:// or https://', isError: true);
+      return;
+    }
+
+    setState(() {
+      _isTestingConnection = true;
+      _isConnectionSuccess = null;
+    });
+
+    try {
+      final isHealthy = await ApiClient.testBackendUrl(url);
+      if (!mounted) return;
+      if (isHealthy) {
+        await ApiClient.setCustomBackendUrl(url);
+        ApiClient.clearResolvedBaseUrl();
+        _showSnackBar('Successfully connected and saved backend URL!');
+        setState(() {
+          _isConnectionSuccess = true;
+        });
+      } else {
+        _showSnackBar('Cannot reach backend /health at $url', isError: true);
+        setState(() {
+          _isConnectionSuccess = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      _showSnackBar('Connection test failed: $e', isError: true);
+      setState(() {
+        _isConnectionSuccess = false;
+      });
+    } finally {
+      if (mounted) setState(() => _isTestingConnection = false);
     }
   }
 
@@ -248,6 +318,69 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
 
               const SizedBox(height: 20),
+
+              // ── Backend Configuration ──────────────────────────────────────────
+              _sectionHeader(
+                icon: Icons.dns_outlined,
+                title: 'Backend Configuration',
+                color: AppTheme.primaryGreen,
+              ),
+              const SizedBox(height: 12),
+              _buildCard(
+                children: [
+                  _field(
+                    controller: _backendUrlController,
+                    label: 'API Base URL',
+                    icon: Icons.link_rounded,
+                    keyboardType: TextInputType.url,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Leave empty to auto-detect localhost (127.0.0.1 or 10.0.2.2).',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontSize: 12,
+                          color: AppTheme.greyText,
+                        ),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _isTestingConnection ? null : _testAndSaveBackendUrl,
+                          icon: _isTestingConnection
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(Icons.bolt_rounded, size: 18),
+                          label: Text(_isTestingConnection ? 'Testing...' : 'Test & Save'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _isConnectionSuccess == true
+                                ? AppTheme.primaryGreen
+                                : (_isConnectionSuccess == false
+                                    ? AppTheme.cancelledColor
+                                    : AppTheme.primaryGreen),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
 
 
 

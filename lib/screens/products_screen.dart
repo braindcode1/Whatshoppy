@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:whatshoppy2/screens/add_product_screen.dart';
+import 'package:whatshoppy2/screens/product_details_screen.dart';
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
@@ -164,8 +166,7 @@ class ProductsScreen extends StatefulWidget {
                                   MaterialPageRoute(
                                     builder: (_) =>
                                         ProductDetailsScreen(
-                                      productName:
-                                          item["name"],
+                                      product: item,
                                     ),
                                   ),
                                 );
@@ -243,47 +244,4 @@ class ProductsScreen extends StatefulWidget {
       ),
     );
   }
-}
-
-class AddProductScreen extends StatelessWidget {
-  const AddProductScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Add Product"),
-      ),
-      body: const Center(
-        child: Text(
-          "Create new product here",
-          style: TextStyle(fontSize: 20),
-        ),
-      ),
-    );
-  }
-}
-
-class ProductDetailsScreen extends StatelessWidget {
-  final String productName;
-
-  const ProductDetailsScreen({
-    super.key,
-    required this.productName,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(productName),
-      ),
-      body: Center(
-        child: Text(
-          productName,
-          style: const TextStyle(fontSize: 22),
-        ),
-      ),
-    );
-  }
-}
+}

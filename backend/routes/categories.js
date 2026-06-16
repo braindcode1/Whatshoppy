@@ -4,22 +4,30 @@ const { supabase } = require("../supabaseClient");
 const router = express.Router();
 
 const DEFAULT_DL_CLASSES = [
-  "Blazer",
-  "Pants",
-  "Shorts",
-  "Dress",
-  "Hoodie",
-  "Jacket",
-  "Denim Jacket",
-  "Sports Jacket",
-  "Jeans",
-  "T-Shirt",
-  "Shirt",
-  "Coat",
-  "Polo Shirt",
-  "Skirt",
-  "Sweater"
+  "General",
+  "Clothes",
+  "Accessories",
+  "Beauty",
+  "Pantry",
+  "Home"
 ];
+
+let hasUserIdColumn = null;
+
+async function checkCategoriesSchema() {
+  if (hasUserIdColumn !== null) return hasUserIdColumn;
+  try {
+    const { error } = await supabase.from("categories").select("user_id").limit(1);
+    if (error && error.message.includes("column") && error.message.includes("does not exist")) {
+      hasUserIdColumn = false;
+    } else {
+      hasUserIdColumn = true;
+    }
+  } catch (e) {
+    hasUserIdColumn = false;
+  }
+  return hasUserIdColumn;
+}
 
 router.get("/", async (req, res, next) => {
   try {
@@ -33,11 +41,14 @@ router.get("/", async (req, res, next) => {
       });
     }
 
-    let { data, error } = await supabase
-      .from("categories")
-      .select("*")
-      .eq("user_id", user_id)
-      .order("nom", { ascending: true });
+    const hasUser = await checkCategoriesSchema();
+
+    let query = supabase.from("categories").select("*");
+    if (hasUser) {
+      query = query.eq("user_id", user_id);
+    }
+
+    let { data, error } = await query.order("nom", { ascending: true });
 
     if (error) {
       return res.status(500).json({
@@ -52,10 +63,13 @@ router.get("/", async (req, res, next) => {
     const missingClasses = DEFAULT_DL_CLASSES.filter(name => !existingNames.has(name.toLowerCase()));
 
     if (missingClasses.length > 0) {
-      const inserts = missingClasses.map(name => ({
-        nom: name,
-        user_id,
-      }));
+      const inserts = missingClasses.map(name => {
+        const item = { nom: name };
+        if (hasUser) {
+          item.user_id = user_id;
+        }
+        return item;
+      });
 
       const { data: seeded, error: seedError } = await supabase
         .from("categories")
@@ -97,11 +111,13 @@ router.post("/", async (req, res, next) => {
     }
 
     const categoryName = nom.trim();
+    const hasUser = await checkCategoriesSchema();
 
-    const { data: existing, error: findError } = await supabase
-      .from("categories")
-      .select("*")
-      .eq("user_id", user_id)
+    let query = supabase.from("categories").select("*");
+    if (hasUser) {
+      query = query.eq("user_id", user_id);
+    }
+    const { data: existing, error: findError } = await query
       .ilike("nom", categoryName)
       .maybeSingle();
 
@@ -121,14 +137,14 @@ router.post("/", async (req, res, next) => {
       });
     }
 
+    const insertData = { nom: categoryName };
+    if (hasUser) {
+      insertData.user_id = user_id;
+    }
+
     const { data, error } = await supabase
       .from("categories")
-      .insert([
-        {
-          nom: categoryName,
-          user_id,
-        },
-      ])
+      .insert([insertData])
       .select()
       .maybeSingle();
 

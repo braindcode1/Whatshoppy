@@ -105,6 +105,139 @@ class _SignInScreenState extends State<SignInScreen>
     );
   }
 
+  Future<void> _showBackendUrlDialog() async {
+    final customUrl = await ApiClient.getCustomBackendUrl() ?? '';
+    final controller = TextEditingController(text: customUrl);
+    bool isTesting = false;
+    bool? isSuccess;
+
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Row(
+            children: [
+              Icon(Icons.dns_outlined, color: AppTheme.primaryGreen),
+              SizedBox(width: 10),
+              Text('API Configuration'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Set a custom API URL for your PC backend:'),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                keyboardType: TextInputType.url,
+                decoration: const InputDecoration(
+                  labelText: 'API Base URL',
+                  hintText: 'e.g. http://192.168.1.50:3000',
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Leave empty to auto-detect localhost (127.0.0.1 or 10.0.2.2).',
+                style: TextStyle(fontSize: 11, color: Colors.grey),
+              ),
+              if (isSuccess == true) ...[
+                const SizedBox(height: 12),
+                const Row(
+                  children: [
+                    Icon(Icons.check_circle_outline, color: AppTheme.primaryGreen, size: 16),
+                    SizedBox(width: 6),
+                    Text('Connected successfully!', style: TextStyle(color: AppTheme.primaryGreen, fontSize: 13)),
+                  ],
+                ),
+              ] else if (isSuccess == false) ...[
+                const SizedBox(height: 12),
+                const Row(
+                  children: [
+                    Icon(Icons.error_outline, color: AppTheme.cancelledColor, size: 16),
+                    SizedBox(width: 6),
+                    Expanded(
+                      child: Text('Cannot reach server /health.', style: TextStyle(color: AppTheme.cancelledColor, fontSize: 13)),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: isTesting
+                  ? null
+                  : () async {
+                      final url = controller.text.trim();
+                      setDialogState(() {
+                        isTesting = true;
+                        isSuccess = null;
+                      });
+
+                      try {
+                        if (url.isEmpty) {
+                          await ApiClient.setCustomBackendUrl(null);
+                          ApiClient.clearResolvedBaseUrl();
+                          setDialogState(() {
+                            isSuccess = true;
+                          });
+                          Future.delayed(const Duration(milliseconds: 600), () {
+                            if (ctx.mounted) Navigator.pop(ctx);
+                          });
+                        } else {
+                          if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              const SnackBar(content: Text('URL must start with http:// or https://')),
+                            );
+                            setDialogState(() {
+                              isTesting = false;
+                            });
+                            return;
+                          }
+
+                          final healthy = await ApiClient.testBackendUrl(url);
+                          if (healthy) {
+                            await ApiClient.setCustomBackendUrl(url);
+                            ApiClient.clearResolvedBaseUrl();
+                            setDialogState(() {
+                              isSuccess = true;
+                            });
+                            Future.delayed(const Duration(milliseconds: 600), () {
+                              if (ctx.mounted) Navigator.pop(ctx);
+                            });
+                          } else {
+                            setDialogState(() {
+                              isSuccess = false;
+                            });
+                          }
+                        }
+                      } catch (_) {
+                        setDialogState(() {
+                          isSuccess = false;
+                        });
+                      } finally {
+                        setDialogState(() {
+                          isTesting = false;
+                        });
+                      }
+                    },
+              child: Text(isTesting ? 'Testing...' : 'Test & Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,6 +249,13 @@ class _SignInScreenState extends State<SignInScreen>
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.dns_outlined, color: AppTheme.primaryGreen),
+            onPressed: _showBackendUrlDialog,
+            tooltip: 'Configure Backend URL',
+          ),
+        ],
       ),
       body: SafeArea(
         child: FadeTransition(

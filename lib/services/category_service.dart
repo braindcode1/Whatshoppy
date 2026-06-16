@@ -19,22 +19,11 @@ class CategoryService {
     } catch (e) {
       return [
         'General',
-        'Blazer',
-        'Pants',
-        'Shorts',
-        'Dress',
-        'Hoodie',
-        'Jacket',
-        'Denim Jacket',
-        'Sports Jacket',
-        'Jeans',
-        'T-Shirt',
-        'Shirt',
-        'Coat',
-        'Polo Shirt',
-        'Skirt',
-        'Sweater',
-        'Other',
+        'Clothes',
+        'Accessories',
+        'Beauty',
+        'Pantry',
+        'Home',
       ];
     }
   }

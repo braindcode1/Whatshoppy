@@ -35,28 +35,18 @@ class _AddProductScreenState extends State<AddProductScreen>
   bool _isAnalyzing = false;
   File? _selectedImage;
   String? _aiError;
+  double? _predictedPrice;
 
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
   List<String> _categories = [
     'General',
-    'Blazer',
-    'Pants',
-    'Shorts',
-    'Dress',
-    'Hoodie',
-    'Jacket',
-    'Denim Jacket',
-    'Sports Jacket',
-    'Jeans',
-    'T-Shirt',
-    'Shirt',
-    'Coat',
-    'Polo Shirt',
-    'Skirt',
-    'Sweater',
-    'Other',
+    'Clothes',
+    'Accessories',
+    'Beauty',
+    'Pantry',
+    'Home',
   ];
 
   @override
@@ -464,11 +454,22 @@ class _AddProductScreenState extends State<AddProductScreen>
               : 'Excellent quality product, perfect for a wide range of everyday uses.';
         }
 
+        String targetCategory = predictedCategory;
+        if (isClothingClass) {
+          if (_categories.contains('Clothes')) {
+            targetCategory = 'Clothes';
+          } else if (_categories.contains('Clothing')) {
+            targetCategory = 'Clothing';
+          } else {
+            targetCategory = 'Clothes';
+          }
+        }
+
         String matchedCategory = _categories.firstWhere(
-          (cat) => cat.toLowerCase() == predictedCategory.toLowerCase(),
+          (cat) => cat.toLowerCase() == targetCategory.toLowerCase(),
           orElse: () {
-            _categories.add(predictedCategory);
-            return predictedCategory;
+            _categories.add(targetCategory);
+            return targetCategory;
           },
         );
         _selectedCategory = matchedCategory;
@@ -687,82 +688,44 @@ class _AddProductScreenState extends State<AddProductScreen>
               const SizedBox(height: 12),
               _buildCard(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _field(
-                          controller: _priceController,
-                          label: 'Price (€)',
-                          hint: '0.00',
-                          icon: Icons.attach_money_rounded,
-                          keyboardType: TextInputType.number,
-                          validator: (v) {
-                            if (v == null || v.trim().isEmpty) {
-                              return 'Required';
-                            }
-                            if (double.tryParse(v.trim()) == null) {
-                              return 'Invalid';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: _field(
-                          controller: _stockController,
-                          label: 'Stock',
-                          hint: '0',
-                          icon: Icons.inventory_rounded,
-                          keyboardType: TextInputType.number,
-                          validator: (v) {
-                            if (v == null || v.trim().isEmpty) {
-                              return 'Required';
-                            }
-                            if (int.tryParse(v.trim()) == null) {
-                              return 'Invalid';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ],
+                  _field(
+                    controller: _priceController,
+                    label: 'Price (€)',
+                    hint: '0.00',
+                    icon: Icons.attach_money_rounded,
+                    keyboardType: TextInputType.number,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) {
+                        return 'Required';
+                      }
+                      if (double.tryParse(v.trim()) == null) {
+                        return 'Invalid';
+                      }
+                      return null;
+                    },
                   ),
-                  const SizedBox(height: 14),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: () async {
-                        final predictedPrice = await Navigator.push<double>(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const PricePredictionScreen(),
-                          ),
-                        );
-                        if (predictedPrice != null && mounted) {
-                          setState(() {
-                            _priceController.text = predictedPrice.toStringAsFixed(2);
-                          });
-                        }
-                      },
-                      icon: const Icon(Icons.price_check_rounded, size: 18),
-                      label: const Text('Predict Best Price'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppTheme.primaryGreen,
-                        side: const BorderSide(
-                          color: AppTheme.primaryGreen,
-                          width: 1.4,
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        textStyle: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                  const SizedBox(height: 10),
+                  _buildPredictPriceButton(),
+                  if (_predictedPrice != null) ...[
+                    const SizedBox(height: 12),
+                    _buildPredictedPriceCard(),
+                  ],
+                  const SizedBox(height: 18),
+                  _field(
+                    controller: _stockController,
+                    label: 'Stock',
+                    hint: '0',
+                    icon: Icons.inventory_rounded,
+                    keyboardType: TextInputType.number,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) {
+                        return 'Required';
+                      }
+                      if (int.tryParse(v.trim()) == null) {
+                        return 'Invalid';
+                      }
+                      return null;
+                    },
                   ),
                 ],
               ),
@@ -1062,6 +1025,145 @@ class _AddProductScreenState extends State<AddProductScreen>
             child: CircularProgressIndicator(
               strokeWidth: 2,
               color: Color(0xFF6366F1),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openPricePrediction() async {
+    final predictedPrice = await Navigator.push<double>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const PricePredictionScreen(),
+      ),
+    );
+    if (predictedPrice != null && mounted) {
+      setState(() => _predictedPrice = predictedPrice);
+    }
+  }
+
+  void _applyPredictedPrice() {
+    if (_predictedPrice == null) return;
+    setState(() {
+      _priceController.text = _predictedPrice!.toStringAsFixed(2);
+      _predictedPrice = null;
+    });
+    _showSnackBar('Price applied to field');
+  }
+
+  Widget _buildPredictPriceButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: _openPricePrediction,
+        icon: const Icon(Icons.price_check_rounded, size: 16),
+        label: const Text('Predict Best Price'),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppTheme.primaryGreen,
+          side: const BorderSide(
+            color: AppTheme.primaryGreen,
+            width: 1.4,
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPredictedPriceCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.primaryGreen.withValues(alpha: 0.12),
+            AppTheme.primaryGreen.withValues(alpha: 0.04),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.primaryGreen.withValues(alpha: 0.35),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryGreen.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.auto_graph_rounded,
+                  color: AppTheme.primaryGreen,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'AI Recommended Price',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.darkGreen,
+                      ),
+                    ),
+                    Text(
+                      '${_predictedPrice!.toStringAsFixed(2)} €',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: AppTheme.primaryGreen,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: () => setState(() => _predictedPrice = null),
+                icon: const Icon(Icons.close_rounded, size: 20),
+                color: AppTheme.greyText,
+                tooltip: 'Dismiss',
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _applyPredictedPrice,
+              icon: const Icon(Icons.check_rounded, size: 18),
+              label: const Text('Put Price in Price Field'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryGreen,
+                foregroundColor: AppTheme.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                ),
+              ),
             ),
           ),
         ],

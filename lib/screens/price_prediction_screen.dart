@@ -160,24 +160,12 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;
-        Navigator.pop(context, _recommendedPrice);
-      },
-      child: Scaffold(
-        backgroundColor: AppTheme.lightBackground,
-        appBar: AppBar(
-          title: const Text('Predict Best Price'),
-          backgroundColor: AppTheme.white,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context, _recommendedPrice);
-            },
-          ),
-        ),
+    return Scaffold(
+      backgroundColor: AppTheme.lightBackground,
+      appBar: AppBar(
+        title: const Text('Predict Best Price'),
+        backgroundColor: AppTheme.white,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -225,7 +213,6 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
               ],
             ),
           ),
-        ),
         ),
       ),
     );
@@ -390,56 +377,84 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
   Widget _buildResult(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.primaryGreen.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: AppTheme.primaryGreen.withValues(alpha: 0.28),
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.primaryGreen.withValues(alpha: 0.14),
+            AppTheme.primaryGreen.withValues(alpha: 0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppTheme.primaryGreen.withValues(alpha: 0.35),
+        ),
+        boxShadow: AppTheme.subtleShadow,
       ),
       child: Column(
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.check_circle_rounded,
-                color: AppTheme.primaryGreen,
-                size: 28,
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryGreen.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.check_circle_rounded,
+                  color: AppTheme.primaryGreen,
+                  size: 26,
+                ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Expanded(
-                child: Text(
-                  'Recommended Price: ${_recommendedPrice!.toStringAsFixed(2)}',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: AppTheme.darkGreen,
-                        fontWeight: FontWeight.w800,
-                      ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Recommended Price',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: AppTheme.darkGreen,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                    Text(
+                      '${_recommendedPrice!.toStringAsFixed(2)} €',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: AppTheme.primaryGreen,
+                            fontWeight: FontWeight.w800,
+                          ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
-            child: TextButton.icon(
+            child: ElevatedButton.icon(
               onPressed: () {
                 Navigator.pop(context, _recommendedPrice);
               },
-              icon: const Icon(Icons.check, color: AppTheme.white),
+              icon: const Icon(Icons.check_rounded, size: 20),
               label: const Text(
-                'Apply to Product Price',
+                'Use Recommended Price',
                 style: TextStyle(
-                  color: AppTheme.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
                 ),
               ),
-              style: TextButton.styleFrom(
+              style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryGreen,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                foregroundColor: AppTheme.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
             ),
